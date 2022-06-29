@@ -1,9 +1,7 @@
-from .module import jsonOutput_Overview,hira_kana_kanji
+from module import jsonSearch,hira_kana_kanji
 import requests
-import pykakasi
 
-def main(any_words)    
-    any_words = input("Wikipediaで検索したいワードは何ですか？ ")
+def main(any_words):
     word_list = hira_kana_kanji(any_words)
 
     wiki_url = "https://ja.wikipedia.org/w/api.php"
