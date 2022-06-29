@@ -1,27 +1,42 @@
-from .module import jsonOutput_Overview
+from .module import jsonOutput_Overview,hira_kana_kanji
 import requests
 import pykakasi
 
-def main(any_words)
-    url = f"https://ja.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro&explaintext&titles={any_words}"
-    resultData = requests.get(url).json()
+def main(any_words)    
+    any_words = input("Wikipediaで検索したいワードは何ですか？ ")
+    word_list = hira_kana_kanji(any_words)
 
-    # 予定しない動作
-    '''
-    カメはあるが亀はない問題 -->pykakasiによる変換
-    概要strが空文字だった場合もしくは日本語表現ではない場合(ja.wikipedia)
-    日本語入力では無い入力
-    wikipediaにない情報
-    不正な入力
-    '''
+    wiki_url = "https://ja.wikipedia.org/w/api.php"
+    wiki_params = {
+            'action':'query',
+            'format':'json',
+            'prop':'extracts',
+            'exintro':True,
+            'explaintext': True,
+            'titles':'',
+        }
 
-    jsonOutput_Overview_inner= jsonOutput_Overview()
-    resultText = jsonOutput_Overview_inner(resultData)
+    resultTexts = ""
 
-    if resultText != "":
-        print(resultText)
-    else:
-        errorText = "'{}'はエラーもしくはWikipediaに無い情報もしくは日本語ではないです。入力し直してください。".format(any_words)
+    i = 1
+    for word in word_list:
+        #文字列のリストだった場合
+        wiki_params['titles'] = word
+        resultData = requests.get(wiki_url,params=wiki_params).json()
+        jsonOutput_Overview = jsonSearch('extract')
+        resultText = jsonOutput_Overview(resultData)
+        if resultText != "":    
+            resultTexts += "{},{}\n\n".format(i,resultText)
+            resultTexts.replace(' ','')
+            i+=1
+
+    try:
+        #resultTextは必ず文字列で返ってくるので空文字列の場合のみを処理する
+        if resultTexts == "":
+            raise Exception
+        print(resultTexts)
+    except:
+        errorText = "'{}'は入力エラーもしくはWikipediaに無い情報です。入力し直してください。".format(any_words)
         print(errorText)
 
 
